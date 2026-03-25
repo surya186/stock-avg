@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Stock Averaging Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060912;
+  --bg2: #0b1120;
+  --bg3: #111827;
+  --border: #1e2d45;
+  --border2: #253350;
+  --text: #e2eaf8;
+  --muted: #5a7199;
+  --accent: #3b7dff;
+  --accent2: #1a56db;
+  --green: #10d97a;
+  --red: #ff4757;
+  --yellow: #f5a623;
+  --mono: 'Space Mono', monospace;
+  --sans: 'Syne', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grid bg */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(59,125,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,125,255,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrapper {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+
+.header-left h1 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+
+.header-left h1 span { color: var(--accent); }
+
+.header-left p {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+.badge {
+  background: rgba(59,125,255,0.12);
+  border: 1px solid rgba(59,125,255,0.3);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--accent);
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 4px;
+  margin-bottom: 32px;
+  width: fit-content;
+}
+
+.tab {
+  padding: 10px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--muted);
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.tab:hover { color: var(--text); }
+
+.tab.active {
+  background: var(--accent);
+  color: white;
+}
+
+/* SECTION */
+.section { display: none; }
+.section.active { display: block; }
+
+/* CARD */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 20px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.card-icon {
+  width: 36px;
+  height: 36px;
+  background: rgba(59,125,255,0.15);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.card-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.card-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+  font-family: var(--mono);
+}
+
+/* INPUT GRID */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.input-group {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.buy-block {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.buy-block .block-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-family: var(--mono);
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-family: var(--mono);
+}
+
+.field input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 11px 14px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 15px;
+  transition: border 0.2s;
+  outline: none;
+}
+
+.field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59,125,255,0.1);
+}
+
+.field input::placeholder { color: var(--muted); opacity: 0.5; }
+
+/* ERROR */
+.error-msg {
+  background: rgba(255,71,87,0.1);
+  border: 1px solid rgba(255,71,87,0.3);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--red);
+  font-family: var(--mono);
+  margin-top: 14px;
+  display: none;
+}
+
+/* BTN */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 13px 28px;
+  background: var(--accent);
+  border: none;
+  color: white;
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  background: var(--accent2);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(59,125,255,0.3);
+}
+
+.btn-sm {
+  padding: 10px 20px;
+  font-size: 13px;
+  border-radius: 10px;
+  margin-top: 0;
+}
+
+/* RESULTS */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.r-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  transition: all 0.3s;
+}
+
+.r-card .r-label {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.r-card .r-value {
+  margin-top: 8px;
+  font-size: 19px;
+  font-weight: 800;
+  font-family: var(--mono);
+  color: var(--text);
+}
+
+.r-card.profit { border-color: rgba(16,217,122,0.3); background: rgba(16,217,122,0.05); }
+.r-card.profit .r-value { color: var(--green); }
+.r-card.loss { border-color: rgba(255,71,87,0.3); background: rgba(255,71,87,0.05); }
+.r-card.loss .r-value { color: var(--red); }
+
+/* MARKET PRICE ROW */
+.market-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.market-row .field { flex: 1; max-width: 220px; }
+.market-row label { color: var(--muted); font-size: 12px; font-family: var(--mono); }
+
+/* SUGGESTION BOX */
+.suggestion-box {
+  background: rgba(245,166,35,0.08);
+  border: 1px solid rgba(245,166,35,0.25);
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-top: 20px;
+  display: none;
+}
+
+.suggestion-box .sug-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--yellow);
+  font-family: var(--mono);
+  margin-bottom: 10px;
+}
+
+.suggestion-box .sug-body {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.sug-highlight {
+  color: var(--yellow);
+  font-family: var(--mono);
+  font-weight: 700;
+}
+
+/* CHART AREA */
+.chart-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 20px;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--muted);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* PROFIT/LOSS VISUAL */
+.pl-visual {
+  margin-top: 24px;
+}
+
+.pl-bar-wrap {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.pl-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.pl-bar-track {
+  height: 12px;
+  background: var(--bg);
+  border-radius: 99px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.pl-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+.price-positions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.pos-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+}
+
+.pos-card .pos-val {
+  font-size: 20px;
+  font-weight: 800;
+  font-family: var(--mono);
+}
+
+.pos-card .pos-lab {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-family: var(--mono);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.pos-card.buy1 .pos-val { color: #7b8fff; }
+.pos-card.buy2 .pos-val { color: #a78bfa; }
+.pos-card.avg .pos-val { color: var(--accent); }
+
+/* PERCENTAGE BADGES */
+.pct-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: var(--mono);
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.pct-badge.up { background: rgba(16,217,122,0.15); color: var(--green); }
+.pct-badge.down { background: rgba(255,71,87,0.15); color: var(--red); }
+
+/* GAP DISPLAY */
+.gap-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 22px;
+  margin-top: 14px;
+}
+
+.gap-info h3 {
+  font-size: 13px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-weight: 400;
+  margin-bottom: 6px;
+}
+
+.gap-info .gap-val {
+  font-size: 28px;
+  font-weight: 800;
+  font-family: var(--mono);
+}
+
+.arrow-indicator {
+  font-size: 36px;
+  line-height: 1;
+}
+
+/* SVG CHART */
+.svg-chart-wrap {
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  margin-top: 16px;
+}
+
+/* REQUIRED SHARES */
+.formula-box {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.formula-box span { color: var(--accent); font-weight: 700; }
+
+.req-results {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-top: 20px;
+}
+
+/* RESPONSIVE */
+@media(max-width: 768px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .results-grid { grid-template-columns: repeat(2, 1fr); }
+  .price-positions { grid-template-columns: 1fr; }
+  .req-results { grid-template-columns: 1fr; }
+  .header { flex-direction: column; gap: 14px; }
+  .header-left h1 { font-size: 24px; }
+}
+
+/* ANIMATE IN */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-in { animation: fadeUp 0.35s ease forwards; }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <h1>Stock <span>Averaging</span> Tool</h1>
+      <p>// calculate · visualize · decide</p>
+    </div>
+    <div class="badge">NSE / BSE · INR ₹</div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" data-tab="avg">📊 Average Calculator</div>
+    <div class="tab" data-tab="req">🎯 Required Shares</div>
+  </div>
+
+  <!-- ═══════════════════════════════ AVERAGE CALCULATOR ═════════════════ -->
+  <div id="avg" class="section active">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📥</div>
+        <div>
+          <div class="card-title">Enter Your Buy Positions</div>
+          <div class="card-sub">Two buy orders to calculate weighted average</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="buy-block">
+          <div class="block-label">Buy #1</div>
+          <div class="field">
+            <label>Buy Price (₹)</label>
+            <input type="number" id="p1" placeholder="e.g. 2450.50" min="0" step="0.01">
+          </div>
+          <div class="field">
+            <label>Quantity (shares)</label>
+            <input type="number" id="q1" placeholder="e.g. 100" min="1" step="1">
+          </div>
+        </div>
+        <div class="buy-block">
+          <div class="block-label">Buy #2</div>
+          <div class="field">
+            <label>Buy Price (₹)</label>
+            <input type="number" id="p2" placeholder="e.g. 2300.00" min="0" step="0.01">
+          </div>
+          <div class="field">
+            <label>Quantity (shares)</label>
+            <input type="number" id="q2" placeholder="e.g. 150" min="1" step="1">
+          </div>
+        </div>
+      </div>
+
+      <div class="error-msg" id="avgError"></div>
+      <button class="btn" onclick="calculateAverage()">⚡ Calculate Average</button>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="card animate-in" id="resultBox" style="display:none">
+      <div class="card-header">
+        <div class="card-icon">📈</div>
+        <div>
+          <div class="card-title">Position Summary</div>
+          <div class="card-sub">Weighted average across both buys</div>
+        </div>
+      </div>
+
+      <div class="results-grid">
+        <div class="r-card">
+          <div class="r-label">Total Shares</div>
+          <div class="r-value" id="rShares">—</div>
+        </div>
+        <div class="r-card">
+          <div class="r-label">Total Investment</div>
+          <div class="r-value" id="rInvest">—</div>
+        </div>
+        <div class="r-card">
+          <div class="r-label">Average Price</div>
+          <div class="r-value" id="rAvg">—</div>
+        </div>
+        <div class="r-card" id="rCurrentCard">
+          <div class="r-label">Current Value</div>
+          <div class="r-value" id="rCurrent">—</div>
+        </div>
+        <div class="r-card" id="rPLCard">
+          <div class="r-label">P&amp;L</div>
+          <div class="r-value" id="rPL">—</div>
+          <div id="rPLpct"></div>
+        </div>
+      </div>
+
+      <!-- MARKET PRICE INPUT -->
+      <div class="market-row">
+        <div class="field">
+          <label>Current Market Price (₹)</label>
+          <input type="number" id="marketPrice" placeholder="Enter LTP..." min="0" step="0.01">
+        </div>
+        <button class="btn btn-sm" onclick="updateMarket()">Update P&amp;L</button>
+      </div>
+
+      <!-- SUGGESTION -->
+      <div class="suggestion-box" id="suggestionBox">
+        <div class="sug-title">💡 Best Averaging Insight</div>
+        <div class="sug-body" id="suggestionText"></div>
+      </div>
+    </div>
+
+    <!-- CHART CARD -->
+    <div class="chart-card animate-in" id="chartBox" style="display:none">
+      <div class="card-header">
+        <div class="card-icon">📉</div>
+        <div>
+          <div class="card-title">Visual Breakdown</div>
+          <div class="card-sub">Price levels & gap to breakeven</div>
+        </div>
+      </div>
+
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#7b8fff"></div>Buy #1</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div>Buy #2</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#3b7dff"></div>Avg Price</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f5a623"></div>Market Price</div>
+      </div>
+
+      <!-- PRICE POSITIONS -->
+      <div class="price-positions">
+        <div class="pos-card buy1">
+          <div class="pos-val" id="cp1">—</div>
+          <div class="pos-lab">Buy #1 Price</div>
+        </div>
+        <div class="pos-card avg">
+          <div class="pos-val" id="cpAvg">—</div>
+          <div class="pos-lab">Avg Price</div>
+        </div>
+        <div class="pos-card buy2">
+          <div class="pos-val" id="cp2">—</div>
+          <div class="pos-lab">Buy #2 Price</div>
+        </div>
+      </div>
+
+      <!-- SVG CHART -->
+      <div class="svg-chart-wrap">
+        <svg id="mainChart" viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block;"></svg>
+      </div>
+
+      <!-- P&L BAR -->
+      <div class="pl-visual" id="plVisual" style="display:none">
+        <div class="pl-bar-wrap">
+          <div class="pl-bar-label">
+            <span>Entry (Avg) ₹<span id="barAvgLbl">0</span></span>
+            <span id="barStatusLbl">Market ₹<span id="barMktLbl">0</span></span>
+          </div>
+          <div class="pl-bar-track">
+            <div class="pl-bar-fill" id="plBarFill" style="width:50%"></div>
+          </div>
+        </div>
+
+        <!-- GAP BOX -->
+        <div class="gap-box">
+          <div class="gap-info">
+            <h3>Gap to Average (per share)</h3>
+            <div class="gap-val" id="gapValue">—</div>
+          </div>
+          <div class="gap-info" style="text-align:right">
+            <h3>Total Gap (all shares)</h3>
+            <div class="gap-val" id="gapTotal">—</div>
+          </div>
+          <div class="arrow-indicator" id="arrowIndicator">↔</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════ REQUIRED SHARES ════════════════════ -->
+  <div id="req" class="section">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">🎯</div>
+        <div>
+          <div class="card-title">Required Shares Calculator</div>
+          <div class="card-sub">How many shares to buy to reach your target average?</div>
+        </div>
+      </div>
+
+      <div class="formula-box">
+        Formula: <span>x = Q × (P − T) / (T − L)</span><br>
+        where Q = current qty, P = current avg, T = target avg, L = buy price (market)
+      </div>
+
+      <div class="grid-2">
+        <div class="buy-block">
+          <div class="block-label">Current Position</div>
+          <div class="field">
+            <label>Current Quantity (shares)</label>
+            <input type="number" id="rQ" placeholder="e.g. 100" min="1" step="1">
+          </div>
+          <div class="field">
+            <label>Current Avg Price (₹)</label>
+            <input type="number" id="rP" placeholder="e.g. 2450" min="0" step="0.01">
+          </div>
+        </div>
+        <div class="buy-block">
+          <div class="block-label">Target</div>
+          <div class="field">
+            <label>Market Price to Buy At (₹)</label>
+            <input type="number" id="rL" placeholder="e.g. 2200" min="0" step="0.01">
+          </div>
+          <div class="field">
+            <label>Target Average (₹)</label>
+            <input type="number" id="rT" placeholder="e.g. 2300" min="0" step="0.01">
+          </div>
+        </div>
+      </div>
+
+      <div class="error-msg" id="reqError"></div>
+      <button class="btn" onclick="calculateRequired()">🎯 Calculate Required</button>
+
+      <div class="req-results" id="reqResults" style="display:none">
+        <div class="r-card">
+          <div class="r-label">Shares to Buy</div>
+          <div class="r-value" id="resShares" style="color:var(--yellow)">—</div>
+        </div>
+        <div class="r-card">
+          <div class="r-label">Additional Investment</div>
+          <div class="r-value" id="resNewInv">—</div>
+        </div>
+        <div class="r-card">
+          <div class="r-label">New Total Shares</div>
+          <div class="r-value" id="resTotalShares">—</div>
+        </div>
+        <div class="r-card">
+          <div class="r-label">Total Investment</div>
+          <div class="r-value" id="resTotalInv">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── TAB SWITCH ──────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ─── STATE ───────────────────────────────────────────────────────────
+let state = {
+  p1: 0, q1: 0, p2: 0, q2: 0,
+  totalShares: 0, totalInvestment: 0, avgPrice: 0
+};
+
+function fmt(n) { return '₹ ' + n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmtP(n) { return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 4000);
+}
+
+// ─── CALCULATE AVERAGE ───────────────────────────────────────────────
+function calculateAverage() {
+  const p1 = parseFloat(document.getElementById('p1').value);
+  const q1 = parseInt(document.getElementById('q1').value);
+  const p2 = parseFloat(document.getElementById('p2').value);
+  const q2 = parseInt(document.getElementById('q2').value);
+
+  if (!p1 || p1 <= 0) return showError('avgError', 'Enter a valid Buy Price 1.');
+  if (!q1 || q1 < 1)  return showError('avgError', 'Quantity 1 must be at least 1.');
+  if (!p2 || p2 <= 0) return showError('avgError', 'Enter a valid Buy Price 2.');
+  if (!q2 || q2 < 1)  return showError('avgError', 'Quantity 2 must be at least 1.');
+
+  state.p1 = p1; state.q1 = q1;
+  state.p2 = p2; state.q2 = q2;
+  state.totalShares = q1 + q2;
+  state.totalInvestment = (p1 * q1) + (p2 * q2);
+  state.avgPrice = state.totalInvestment / state.totalShares;
+
+  document.getElementById('rShares').textContent = state.totalShares;
+  document.getElementById('rInvest').textContent = fmt(state.totalInvestment);
+  document.getElementById('rAvg').textContent = fmt(state.avgPrice);
+  document.getElementById('rCurrent').textContent = '—';
+  document.getElementById('rPL').textContent = '—';
+  document.getElementById('rPLpct').innerHTML = '';
+
+  document.getElementById('resultBox').style.display = 'block';
+  document.getElementById('chartBox').style.display = 'block';
+  document.getElementById('plVisual').style.display = 'none';
+  document.getElementById('suggestionBox').style.display = 'none';
+  document.getElementById('marketPrice').value = '';
+
+  // Chart positions
+  document.getElementById('cp1').textContent = fmt(p1);
+  document.getElementById('cp2').textContent = fmt(p2);
+  document.getElementById('cpAvg').textContent = fmt(state.avgPrice);
+
+  drawChart(p1, p2, state.avgPrice, null);
+}
+
+// ─── UPDATE MARKET ───────────────────────────────────────────────────
+function updateMarket() {
+  const market = parseFloat(document.getElementById('marketPrice').value);
+  if (!market || market <= 0) return showError('avgError', 'Enter a valid market price.');
+  if (!state.totalShares) return showError('avgError', 'Calculate average first.');
+
+  const currentVal = market * state.totalShares;
+  const pl = currentVal - state.totalInvestment;
+  const plPct = (pl / state.totalInvestment) * 100;
+  const isProfit = pl >= 0;
+
+  document.getElementById('rCurrent').textContent = fmt(currentVal);
+  document.getElementById('rPL').textContent = (isProfit ? '+' : '') + fmt(pl);
+  document.getElementById('rPLpct').innerHTML = `<span class="pct-badge ${isProfit ? 'up' : 'down'}">${isProfit ? '▲' : '▼'} ${Math.abs(plPct).toFixed(2)}%</span>`;
+
+  const rPLCard = document.getElementById('rPLCard');
+  const rCurrentCard = document.getElementById('rCurrentCard');
+  rPLCard.className = 'r-card ' + (isProfit ? 'profit' : 'loss');
+  rCurrentCard.className = 'r-card ' + (isProfit ? 'profit' : 'loss');
+
+  drawChart(state.p1, state.p2, state.avgPrice, market);
+
+  // P&L bar
+  const plDiv = document.getElementById('plVisual');
+  plDiv.style.display = 'block';
+
+  const gapPerShare = market - state.avgPrice;
+  const gapTotal = gapPerShare * state.totalShares;
+  const col = isProfit ? 'var(--green)' : 'var(--red)';
+
+  document.getElementById('gapValue').textContent = (gapPerShare >= 0 ? '+' : '') + fmt(gapPerShare);
+  document.getElementById('gapValue').style.color = col;
+  document.getElementById('gapTotal').textContent = (gapTotal >= 0 ? '+' : '') + fmt(gapTotal);
+  document.getElementById('gapTotal').style.color = col;
+  document.getElementById('arrowIndicator').textContent = isProfit ? '📈' : '📉';
+
+  const fill = document.getElementById('plBarFill');
+  const ratio = Math.min(Math.max(market / (state.avgPrice * 2), 0), 1);
+  fill.style.width = (ratio * 100) + '%';
+  fill.style.background = col;
+
+  document.getElementById('barAvgLbl').textContent = fmtP(state.avgPrice);
+  document.getElementById('barMktLbl').textContent = fmtP(market);
+  document.getElementById('barStatusLbl').innerHTML = `Market ₹<span id="barMktLbl">${fmtP(market)}</span>`;
+
+  // Suggestion
+  showSuggestion(market, state.avgPrice, state.p1, state.p2, state.q1, state.q2, pl, plPct);
+}
+
+// ─── SUGGESTION ──────────────────────────────────────────────────────
+function showSuggestion(market, avg, p1, p2, q1, q2, pl, plPct) {
+  const box = document.getElementById('suggestionBox');
+  const txt = document.getElementById('suggestionText');
+  const isProfit = pl >= 0;
+  const gap = Math.abs(market - avg);
+  const gapPct = (gap / avg) * 100;
+
+  // Best price to buy more if in loss
+  let msg = '';
+  if (!isProfit) {
+    const suggestQty = Math.ceil((q1 + q2) * 0.5);
+    const newAvg = (state.totalInvestment + market * suggestQty) / (state.totalShares + suggestQty);
+    msg = `📉 You're <span class="sug-highlight">${Math.abs(plPct).toFixed(2)}% below</span> your average (₹${fmtP(avg)}).
+    <br>Buying <span class="sug-highlight">${suggestQty} more shares</span> at current market price 
+    <span class="sug-highlight">₹${fmtP(market)}</span> would bring your new average to 
+    <span class="sug-highlight">₹${fmtP(newAvg)}</span>. 
+    You'd need a <span class="sug-highlight">${(((newAvg - market) / market) * 100).toFixed(2)}% recovery</span> to break even.`;
+  } else {
+    msg = `📈 You're <span class="sug-highlight">+${plPct.toFixed(2)}% in profit</span>. 
+    Current market ₹${fmtP(market)} is <span class="sug-highlight">₹${fmtP(gap)} above</span> your average.
+    Consider booking partial profits if the move is <span class="sug-highlight">&gt; ${(gapPct).toFixed(1)}%</span> from your entry 
+    or trail a stop-loss near ₹<span class="sug-highlight">${fmtP(avg * 1.02)}</span>.`;
+  }
+
+  txt.innerHTML = msg;
+  box.style.display = 'block';
+}
+
+// ─── DRAW SVG CHART ──────────────────────────────────────────────────
+function drawChart(p1, p2, avg, market) {
+  const svg = document.getElementById('mainChart');
+  const W = 900, H = 260;
+  const padL = 80, padR = 60, padT = 30, padB = 30;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+
+  const prices = [p1, p2, avg];
+  if (market) prices.push(market);
+
+  const minP = Math.min(...prices) * 0.985;
+  const maxP = Math.max(...prices) * 1.015;
+
+  const toY = v => padT + plotH - ((v - minP) / (maxP - minP)) * plotH;
+
+  // Spread bars across x
+  const xs = { p1: padL + plotW * 0.15, p2: padL + plotW * 0.5, avg: padL + plotW * 0.75, market: padL + plotW * 0.92 };
+
+  let html = `<defs>
+    <linearGradient id="gBar1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7b8fff" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#7b8fff" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="gBar2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#a78bfa" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="gMkt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${market >= avg ? '#10d97a' : '#ff4757'}" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="${market >= avg ? '#10d97a' : '#ff4757'}" stop-opacity="0.2"/>
+    </linearGradient>
+  </defs>`;
+
+  const base = H - padB;
+  const bw = 32;
+
+  // Bars
+  const drawBar = (x, price, grad, label, isMarket) => {
+    const y = toY(price);
+    const barH = base - y;
+    if (barH <= 0) return '';
+    return `
+      <rect x="${x - bw/2}" y="${y}" width="${bw}" height="${barH}" fill="url(#${grad})" rx="5"/>
+      <text x="${x}" y="${y - 8}" text-anchor="middle" fill="${isMarket ? (market >= avg ? '#10d97a' : '#ff4757') : '#c7d5ff'}" font-family="'Space Mono', monospace" font-size="11" font-weight="700">₹${fmtP(price)}</text>
+      <text x="${x}" y="${base + 18}" text-anchor="middle" fill="#5a7199" font-family="'Space Mono', monospace" font-size="10">${label}</text>
+    `;
+  };
+
+  html += drawBar(xs.p1, p1, 'gBar1', 'Buy #1', false);
+  html += drawBar(xs.p2, p2, 'gBar2', 'Buy #2', false);
+
+  // Avg line
+  const yAvg = toY(avg);
+  html += `<line x1="${padL}" y1="${yAvg}" x2="${W - padR}" y2="${yAvg}" stroke="#3b7dff" stroke-width="2" stroke-dasharray="6 4" opacity="0.7"/>`;
+  html += `<text x="${padL + 6}" y="${yAvg - 6}" fill="#3b7dff" font-family="'Space Mono', monospace" font-size="11">Avg ₹${fmtP(avg)}</text>`;
+
+  // Market
+  if (market) {
+    const mCol = market >= avg ? '#10d97a' : '#ff4757';
+    html += drawBar(xs.market, market, 'gMkt', 'Market', true);
+
+    // Gap line between avg line and market bar top
+    const yMkt = toY(market);
+    const gapX = xs.market + bw/2 + 8;
+    html += `<line x1="${gapX}" y1="${Math.min(yAvg, yMkt)}" x2="${gapX}" y2="${Math.max(yAvg, yMkt)}" stroke="${mCol}" stroke-width="2" stroke-dasharray="4 3"/>`;
+    html += `<text x="${gapX + 6}" y="${(yAvg + yMkt)/2 + 4}" fill="${mCol}" font-family="'Space Mono', monospace" font-size="11">₹${fmtP(Math.abs(market - avg))}</text>`;
+  }
+
+  // Y axis ticks
+  for (let i = 0; i <= 4; i++) {
+    const v = minP + (maxP - minP) * (i / 4);
+    const y = toY(v);
+    html += `<line x1="${padL - 5}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#1e2d45" stroke-width="1"/>`;
+    html += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#3a5270" font-family="'Space Mono', monospace" font-size="10">₹${Math.round(v)}</text>`;
+  }
+
+  svg.innerHTML = html;
+}
+
+// ─── REQUIRED SHARES ─────────────────────────────────────────────────
+function calculateRequired() {
+  const Q = parseInt(document.getElementById('rQ').value);
+  const P = parseFloat(document.getElementById('rP').value);
+  const L = parseFloat(document.getElementById('rL').value);
+  const T = parseFloat(document.getElementById('rT').value);
+
+  if (!Q || Q < 1)  return showError('reqError', 'Current quantity must be ≥ 1.');
+  if (!P || P <= 0) return showError('reqError', 'Current average price is invalid.');
+  if (!L || L <= 0) return showError('reqError', 'Market buy price is invalid.');
+  if (!T || T <= 0) return showError('reqError', 'Target average is invalid.');
+  if (T >= P) return showError('reqError', 'Target avg must be less than current avg (to bring it down).');
+  if (L >= T) return showError('reqError', 'Market buy price must be less than target average.');
+
+  const x = (Q * (P - T)) / (T - L);
+  if (x <= 0 || !isFinite(x)) return showError('reqError', 'No valid solution. Check inputs.');
+
+  const xCeil = Math.ceil(x);
+  const addInv = xCeil * L;
+  const totalQ = Q + xCeil;
+  const totalI = (Q * P) + addInv;
+  const newAvg = totalI / totalQ;
+
+  document.getElementById('resShares').textContent = xCeil;
+  document.getElementById('resNewInv').textContent = fmt(addInv);
+  document.getElementById('resTotalShares').textContent = totalQ;
+  document.getElementById('resTotalInv').textContent = fmt(totalI);
+
+  const el = document.getElementById('reqResults');
+  el.style.display = 'grid';
+
+  // Verify
+  const verifyBox = document.createElement('div');
+  verifyBox.className = 'suggestion-box';
+  verifyBox.style.marginTop = '16px';
+  verifyBox.style.display = 'block';
+  verifyBox.innerHTML = `
+    <div class="sug-title">✅ Verification</div>
+    <div class="sug-body">
+      Buying <span class="sug-highlight">${xCeil} shares</span> at 
+      <span class="sug-highlight">₹${fmtP(L)}</span> → New average = 
+      <span class="sug-highlight">₹${fmtP(newAvg)}</span>
+      &nbsp;(target was ₹${fmtP(T)}).
+      Additional capital needed: <span class="sug-highlight">${fmt(addInv)}</span>.
+    </div>
+  `;
+  const existing = document.querySelector('#req .suggestion-box');
+  if (existing) existing.remove();
+  el.after(verifyBox);
+}
+</script>
+</body>
+</html>
