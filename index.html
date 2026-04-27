@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Stock Averaging Tool</title>
+<title>Stock Toolkit Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -19,6 +19,7 @@
   --green: #10d97a;
   --red: #ff4757;
   --yellow: #f5a623;
+  --purple: #a78bfa;
   --mono: 'Space Mono', monospace;
   --sans: 'Syne', sans-serif;
 }
@@ -33,7 +34,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Grid bg */
 body::before {
   content: '';
   position: fixed;
@@ -97,18 +97,19 @@ body::before {
   border-radius: 14px;
   padding: 4px;
   margin-bottom: 32px;
-  width: fit-content;
+  flex-wrap: wrap;
 }
 
 .tab {
-  padding: 10px 24px;
+  padding: 10px 20px;
   border-radius: 10px;
   cursor: pointer;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--muted);
   transition: all 0.2s;
   user-select: none;
+  white-space: nowrap;
 }
 
 .tab:hover { color: var(--text); }
@@ -147,12 +148,10 @@ body::before {
   align-items: center;
   justify-content: center;
   font-size: 16px;
+  flex-shrink: 0;
 }
 
-.card-title {
-  font-size: 17px;
-  font-weight: 700;
-}
+.card-title { font-size: 17px; font-weight: 700; }
 
 .card-sub {
   font-size: 12px;
@@ -166,12 +165,6 @@ body::before {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-}
-
-.input-group {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
 }
 
 .buy-block {
@@ -201,7 +194,7 @@ body::before {
   font-family: var(--mono);
 }
 
-.field input {
+.field input, .field select, .field textarea {
   width: 100%;
   background: var(--bg);
   border: 1px solid var(--border2);
@@ -209,17 +202,26 @@ body::before {
   padding: 11px 14px;
   color: var(--text);
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: 14px;
   transition: border 0.2s;
   outline: none;
 }
 
-.field input:focus {
+.field select option { background: var(--bg3); }
+
+.field textarea {
+  resize: vertical;
+  min-height: 110px;
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+.field input:focus, .field select:focus, .field textarea:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(59,125,255,0.1);
 }
 
-.field input::placeholder { color: var(--muted); opacity: 0.5; }
+.field input::placeholder, .field textarea::placeholder { color: var(--muted); opacity: 0.5; }
 
 /* ERROR */
 .error-msg {
@@ -264,6 +266,18 @@ body::before {
   border-radius: 10px;
   margin-top: 0;
 }
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  padding: 9px 16px;
+  font-size: 12px;
+  border-radius: 10px;
+  margin-top: 0;
+}
+
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: rgba(59,125,255,0.07); }
 
 /* RESULTS */
 .results-grid {
@@ -379,9 +393,7 @@ body::before {
 }
 
 /* PROFIT/LOSS VISUAL */
-.pl-visual {
-  margin-top: 24px;
-}
+.pl-visual { margin-top: 24px; }
 
 .pl-bar-wrap {
   background: var(--bg3);
@@ -428,21 +440,8 @@ body::before {
   text-align: center;
 }
 
-.pos-card .pos-val {
-  font-size: 20px;
-  font-weight: 800;
-  font-family: var(--mono);
-}
-
-.pos-card .pos-lab {
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 4px;
-  font-family: var(--mono);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
+.pos-card .pos-val { font-size: 20px; font-weight: 800; font-family: var(--mono); }
+.pos-card .pos-lab { font-size: 11px; color: var(--muted); margin-top: 4px; font-family: var(--mono); letter-spacing: 0.5px; text-transform: uppercase; }
 .pos-card.buy1 .pos-val { color: #7b8fff; }
 .pos-card.buy2 .pos-val { color: #a78bfa; }
 .pos-card.avg .pos-val { color: var(--accent); }
@@ -473,24 +472,9 @@ body::before {
   margin-top: 14px;
 }
 
-.gap-info h3 {
-  font-size: 13px;
-  color: var(--muted);
-  font-family: var(--mono);
-  font-weight: 400;
-  margin-bottom: 6px;
-}
-
-.gap-info .gap-val {
-  font-size: 28px;
-  font-weight: 800;
-  font-family: var(--mono);
-}
-
-.arrow-indicator {
-  font-size: 36px;
-  line-height: 1;
-}
+.gap-info h3 { font-size: 13px; color: var(--muted); font-family: var(--mono); font-weight: 400; margin-bottom: 6px; }
+.gap-info .gap-val { font-size: 28px; font-weight: 800; font-family: var(--mono); }
+.arrow-indicator { font-size: 36px; line-height: 1; }
 
 /* SVG CHART */
 .svg-chart-wrap {
@@ -523,22 +507,263 @@ body::before {
   margin-top: 20px;
 }
 
-/* RESPONSIVE */
-@media(max-width: 768px) {
-  .grid-2 { grid-template-columns: 1fr; }
-  .results-grid { grid-template-columns: repeat(2, 1fr); }
-  .price-positions { grid-template-columns: 1fr; }
-  .req-results { grid-template-columns: 1fr; }
-  .header { flex-direction: column; gap: 14px; }
-  .header-left h1 { font-size: 24px; }
+/* ── XIRR STYLES ── */
+.xirr-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
 }
+
+.xirr-row-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  align-items: center;
+}
+
+/* LOTS TABLE */
+.lots-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  margin-top: 4px;
+}
+
+.lots-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.lots-table thead tr {
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+}
+
+.lots-table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.lots-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+.lots-table tbody tr:hover { background: rgba(59,125,255,0.05); }
+.lots-table tbody tr:last-child { border-bottom: none; }
+
+.lots-table td {
+  padding: 10px 14px;
+  color: var(--text);
+}
+
+.lots-table td.price-cell { color: var(--accent); font-weight: 700; }
+.lots-table td.invest-cell { color: var(--yellow); }
+
+.lots-table .del-btn {
+  background: rgba(255,71,87,0.12);
+  border: 1px solid rgba(255,71,87,0.25);
+  color: var(--red);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: var(--mono);
+  transition: all 0.15s;
+}
+
+.lots-table .del-btn:hover { background: rgba(255,71,87,0.25); }
+
+/* XIRR SUMMARY CARDS */
+.xirr-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.xc {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+
+.xc .xc-label {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.xc .xc-val {
+  margin-top: 8px;
+  font-size: 22px;
+  font-weight: 800;
+  font-family: var(--mono);
+  color: var(--text);
+}
+
+.xc.accent-card { border-color: rgba(59,125,255,0.3); background: rgba(59,125,255,0.06); }
+.xc.accent-card .xc-val { color: var(--accent); }
+.xc.green-card { border-color: rgba(16,217,122,0.3); background: rgba(16,217,122,0.05); }
+.xc.green-card .xc-val { color: var(--green); }
+.xc.red-card { border-color: rgba(255,71,87,0.3); background: rgba(255,71,87,0.05); }
+.xc.red-card .xc-val { color: var(--red); }
+
+/* INSIGHTS ROW */
+.insight-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.insight-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.insight-card .ic-tag {
+  font-size: 10px;
+  font-family: var(--mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.insight-card .ic-val {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: var(--mono);
+}
+
+.insight-card .ic-sub {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-top: 3px;
+}
+
+/* EXIT TARGET CARD */
+.exit-card {
+  background: linear-gradient(135deg, rgba(59,125,255,0.08), rgba(16,217,122,0.06));
+  border: 1px solid rgba(59,125,255,0.25);
+  border-radius: 16px;
+  padding: 22px;
+  margin-top: 16px;
+}
+
+.exit-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.exit-card-main .ec-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: var(--mono);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.exit-card-main .ec-price {
+  font-size: 36px;
+  font-weight: 800;
+  font-family: var(--mono);
+  color: var(--accent);
+  margin-top: 4px;
+}
+
+.exit-card-main .ec-sub { font-size: 13px; color: var(--muted); font-family: var(--mono); margin-top: 4px; }
+
+.exit-stats { display: flex; gap: 20px; flex-wrap: wrap; }
+
+.exit-stat .es-l { font-size: 11px; color: var(--muted); font-family: var(--mono); text-transform: uppercase; }
+.exit-stat .es-v { font-size: 16px; font-weight: 700; font-family: var(--mono); margin-top: 4px; }
+
+/* XIRR gauge bar */
+.xirr-gauge-wrap { margin-top: 16px; }
+.xirr-gauge-label { display: flex; justify-content: space-between; font-size: 12px; font-family: var(--mono); color: var(--muted); margin-bottom: 8px; }
+.xirr-gauge-track { height: 8px; background: var(--bg); border-radius: 99px; border: 1px solid var(--border); overflow: hidden; }
+.xirr-gauge-fill { height: 100%; border-radius: 99px; transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1); background: linear-gradient(90deg, var(--accent), var(--green)); }
+
+/* PASTE HELPER */
+.paste-helper {
+  background: rgba(59,125,255,0.06);
+  border: 1px dashed rgba(59,125,255,0.3);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  font-family: var(--mono);
+}
+
+.paste-helper strong { color: var(--accent); }
+
+/* ZERODHA PARSE SOURCE */
+.source-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.src-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--muted);
+  font-size: 12px;
+  font-family: var(--mono);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.src-btn:hover { border-color: var(--accent); color: var(--accent); }
+.src-btn.selected { background: rgba(59,125,255,0.15); border-color: var(--accent); color: var(--accent); }
 
 /* ANIMATE IN */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
 .animate-in { animation: fadeUp 0.35s ease forwards; }
+
+/* RESPONSIVE */
+@media(max-width: 768px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .xirr-grid { grid-template-columns: 1fr; }
+  .results-grid { grid-template-columns: repeat(2, 1fr); }
+  .xirr-summary { grid-template-columns: repeat(2, 1fr); }
+  .price-positions { grid-template-columns: 1fr; }
+  .req-results { grid-template-columns: 1fr; }
+  .insight-row { grid-template-columns: 1fr; }
+  .header { flex-direction: column; gap: 14px; }
+  .header-left h1 { font-size: 24px; }
+  .exit-card-row { flex-direction: column; }
+  .exit-card-main .ec-price { font-size: 28px; }
+}
 </style>
 </head>
 <body>
@@ -548,8 +773,8 @@ body::before {
   <!-- HEADER -->
   <div class="header">
     <div class="header-left">
-      <h1>Stock <span>Averaging</span> Tool</h1>
-      <p>// calculate · visualize · decide</p>
+      <h1>Stock <span>Toolkit</span> Pro</h1>
+      <p>// average · target · xirr · analyze</p>
     </div>
     <div class="badge">NSE / BSE · INR ₹</div>
   </div>
@@ -558,9 +783,10 @@ body::before {
   <div class="tabs">
     <div class="tab active" data-tab="avg">📊 Average Calculator</div>
     <div class="tab" data-tab="req">🎯 Required Shares</div>
+    <div class="tab" data-tab="xirr">📈 XIRR Analyzer</div>
   </div>
 
-  <!-- ═══════════════════════════════ AVERAGE CALCULATOR ═════════════════ -->
+  <!-- ══════════════════════════════════ AVERAGE CALCULATOR ══════════════════ -->
   <div id="avg" class="section active">
 
     <div class="card">
@@ -668,7 +894,6 @@ body::before {
         <div class="legend-item"><div class="legend-dot" style="background:#f5a623"></div>Market Price</div>
       </div>
 
-      <!-- PRICE POSITIONS -->
       <div class="price-positions">
         <div class="pos-card buy1">
           <div class="pos-val" id="cp1">—</div>
@@ -684,7 +909,6 @@ body::before {
         </div>
       </div>
 
-      <!-- SVG CHART -->
       <div class="svg-chart-wrap">
         <svg id="mainChart" viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto;display:block;"></svg>
       </div>
@@ -701,7 +925,6 @@ body::before {
           </div>
         </div>
 
-        <!-- GAP BOX -->
         <div class="gap-box">
           <div class="gap-info">
             <h3>Gap to Average (per share)</h3>
@@ -718,7 +941,7 @@ body::before {
 
   </div>
 
-  <!-- ═══════════════════════════════ REQUIRED SHARES ════════════════════ -->
+  <!-- ══════════════════════════════════ REQUIRED SHARES ════════════════════ -->
   <div id="req" class="section">
     <div class="card">
       <div class="card-header">
@@ -783,10 +1006,205 @@ body::before {
     </div>
   </div>
 
+  <!-- ══════════════════════════════════ XIRR ANALYZER ═════════════════════ -->
+  <div id="xirr" class="section">
+
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">📋</div>
+        <div>
+          <div class="card-title">Import Buy Lots</div>
+          <div class="card-sub">Paste from Zerodha Console or enter manually</div>
+        </div>
+      </div>
+
+      <!-- SOURCE SELECTOR -->
+      <div class="source-selector">
+        <button class="src-btn selected" id="srcZerodha" onclick="setSource('zerodha')">📊 Zerodha Console</button>
+        <button class="src-btn" id="srcKite" onclick="setSource('kite')">📱 Kite Trades</button>
+        <button class="src-btn" id="srcManual" onclick="setSource('manual')">✏️ Manual Entry</button>
+      </div>
+
+      <div class="paste-helper" id="pasteHelper">
+        <strong>Zerodha Console:</strong> Go to Console → Holdings → select stock → click the trade history table → Select All (Ctrl+A) → Copy (Ctrl+C) → Paste below.<br>
+        <span style="color:#3b7dff">Expected format: <code>DD-MM-YYYY &nbsp; BUY &nbsp; QTY &nbsp; PRICE</code> or tab/space separated columns.</span>
+      </div>
+
+      <div class="field">
+        <label id="pasteLabel">Paste Zerodha trade data (date, type, qty, price — one row per trade)</label>
+        <textarea id="bulkData" placeholder="15-01-2024  BUY  50  2342.50&#10;03-03-2024  BUY  100  2180.00&#10;12-06-2024  BUY  75  2560.00"></textarea>
+      </div>
+
+      <div class="xirr-grid" style="margin-top:16px">
+        <div class="field">
+          <label>Target XIRR (%)</label>
+          <input type="number" id="xirrRate" value="12" placeholder="e.g. 15" min="1" step="0.5">
+        </div>
+        <div class="field">
+          <label>Target Exit Date</label>
+          <input type="date" id="exitDate">
+        </div>
+      </div>
+
+      <div class="xirr-grid">
+        <div class="field">
+          <label>Current Market Price (₹) — for live P&amp;L</label>
+          <input type="number" id="xirrCMP" placeholder="e.g. 2750.00" step="0.01">
+        </div>
+        <div class="field">
+          <label>Stock Symbol (optional)</label>
+          <input type="text" id="xirrSymbol" placeholder="e.g. INFY, TCS..." style="text-transform:uppercase">
+        </div>
+      </div>
+
+      <div class="error-msg" id="xirrError"></div>
+
+      <div class="xirr-row-actions">
+        <button class="btn" onclick="parseAndAnalyze()">🔍 Analyze XIRR</button>
+        <button class="btn btn-ghost" onclick="clearXirr()">✕ Clear</button>
+        <button class="btn btn-ghost" onclick="loadSampleData()">🔢 Load Sample</button>
+      </div>
+    </div>
+
+    <!-- LOTS TABLE -->
+    <div class="card animate-in" id="xirrLotsCard" style="display:none">
+      <div class="card-header">
+        <div class="card-icon">📋</div>
+        <div>
+          <div class="card-title">Parsed Buy Lots</div>
+          <div class="card-sub" id="xirrLotsSubtitle">0 lots detected</div>
+        </div>
+      </div>
+      <div class="lots-wrap">
+        <table class="lots-table" id="lotsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date</th>
+              <th>Qty</th>
+              <th>Buy Price</th>
+              <th>Investment</th>
+              <th>% of Total</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="lotsTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="animate-in" id="xirrSummarySection" style="display:none">
+
+      <div class="xirr-summary">
+        <div class="xc accent-card">
+          <div class="xc-label">Avg Buy Price</div>
+          <div class="xc-val" id="xAvg">—</div>
+        </div>
+        <div class="xc">
+          <div class="xc-label">Total Investment</div>
+          <div class="xc-val" id="xTotalInv">—</div>
+        </div>
+        <div class="xc">
+          <div class="xc-label">Total Qty</div>
+          <div class="xc-val" id="xTotalQty">—</div>
+        </div>
+        <div class="xc" id="xPLCard">
+          <div class="xc-label">Unrealised P&amp;L</div>
+          <div class="xc-val" id="xPL">—</div>
+        </div>
+      </div>
+
+      <!-- INSIGHTS ROW -->
+      <div class="insight-row" style="margin-top:14px">
+        <div class="insight-card">
+          <div class="ic-tag">❌ Worst Buy</div>
+          <div class="ic-val" id="xWorstPrice" style="color:var(--red)">—</div>
+          <div class="ic-sub" id="xWorstDate">—</div>
+        </div>
+        <div class="insight-card">
+          <div class="ic-tag">✅ Best Buy</div>
+          <div class="ic-val" id="xBestPrice" style="color:var(--green)">—</div>
+          <div class="ic-sub" id="xBestDate">—</div>
+        </div>
+        <div class="insight-card">
+          <div class="ic-tag">📉 Recent Avg (last 3)</div>
+          <div class="ic-val" id="xRecentAvg" style="color:var(--purple)">—</div>
+          <div class="ic-sub" id="xRecentSub">last 3 buys</div>
+        </div>
+      </div>
+
+      <!-- XIRR GAUGE -->
+      <div class="card" style="margin-top:14px" id="xirrGaugeCard">
+        <div class="card-header">
+          <div class="card-icon">⚡</div>
+          <div>
+            <div class="card-title">Actual XIRR on Current Value</div>
+            <div class="card-sub" id="xirrGaugeSub">Requires current market price</div>
+          </div>
+        </div>
+        <div id="xirrGaugeContent" style="display:none">
+          <div class="xirr-summary" style="grid-template-columns:repeat(3,1fr)">
+            <div class="xc green-card" id="xirrActualCard">
+              <div class="xc-label">Actual XIRR</div>
+              <div class="xc-val" id="xirrActualVal">—</div>
+            </div>
+            <div class="xc">
+              <div class="xc-label">Holding Period</div>
+              <div class="xc-val" id="xirrHoldPeriod">—</div>
+            </div>
+            <div class="xc">
+              <div class="xc-label">Absolute Return</div>
+              <div class="xc-val" id="xirrAbsReturn">—</div>
+            </div>
+          </div>
+          <div class="xirr-gauge-wrap" style="margin-top:16px">
+            <div class="xirr-gauge-label">
+              <span>0%</span>
+              <span id="xirrGaugeMarker">XIRR: —</span>
+              <span>50%+</span>
+            </div>
+            <div class="xirr-gauge-track">
+              <div class="xirr-gauge-fill" id="xirrGaugeFill" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXIT TARGET CARD -->
+      <div class="exit-card animate-in" id="exitTargetCard" style="display:none">
+        <div class="exit-card-row">
+          <div class="exit-card-main">
+            <div class="ec-label">Required Exit Price</div>
+            <div class="ec-price" id="ecPrice">—</div>
+            <div class="ec-sub" id="ecSub">to achieve <span id="ecRate">—</span>% XIRR by <span id="ecDate">—</span></div>
+          </div>
+          <div class="exit-stats">
+            <div class="exit-stat">
+              <div class="es-l">Total Exit Value</div>
+              <div class="es-v" id="ecTotal">—</div>
+            </div>
+            <div class="exit-stat">
+              <div class="es-l">Gain Required</div>
+              <div class="es-v" id="ecGain" style="color:var(--green)">—</div>
+            </div>
+            <div class="exit-stat">
+              <div class="es-l">Return Required</div>
+              <div class="es-v" id="ecRetPct" style="color:var(--accent)">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- end xirr section -->
+
 </div>
 
 <script>
-// ─── TAB SWITCH ──────────────────────────────────────────────────────
+// ══════════════════════════ TABS ══════════════════════════
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -796,14 +1214,12 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// ─── STATE ───────────────────────────────────────────────────────────
-let state = {
-  p1: 0, q1: 0, p2: 0, q2: 0,
-  totalShares: 0, totalInvestment: 0, avgPrice: 0
-};
+// ══════════════════════════ UTILS ══════════════════════════
+let state = { p1:0, q1:0, p2:0, q2:0, totalShares:0, totalInvestment:0, avgPrice:0 };
 
-function fmt(n) { return '₹ ' + n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-function fmtP(n) { return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmt(n) { return '₹ ' + n.toLocaleString('en-IN', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+function fmtP(n) { return n.toLocaleString('en-IN', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+function fmtPShort(n) { return '₹' + n.toLocaleString('en-IN', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
 
 function showError(id, msg) {
   const el = document.getElementById(id);
@@ -812,7 +1228,7 @@ function showError(id, msg) {
   setTimeout(() => el.style.display = 'none', 4000);
 }
 
-// ─── CALCULATE AVERAGE ───────────────────────────────────────────────
+// ══════════════════════════ AVERAGE CALCULATOR ══════════════════════════
 function calculateAverage() {
   const p1 = parseFloat(document.getElementById('p1').value);
   const q1 = parseInt(document.getElementById('q1').value);
@@ -843,7 +1259,6 @@ function calculateAverage() {
   document.getElementById('suggestionBox').style.display = 'none';
   document.getElementById('marketPrice').value = '';
 
-  // Chart positions
   document.getElementById('cp1').textContent = fmt(p1);
   document.getElementById('cp2').textContent = fmt(p2);
   document.getElementById('cpAvg').textContent = fmt(state.avgPrice);
@@ -851,7 +1266,6 @@ function calculateAverage() {
   drawChart(p1, p2, state.avgPrice, null);
 }
 
-// ─── UPDATE MARKET ───────────────────────────────────────────────────
 function updateMarket() {
   const market = parseFloat(document.getElementById('marketPrice').value);
   if (!market || market <= 0) return showError('avgError', 'Enter a valid market price.');
@@ -866,14 +1280,11 @@ function updateMarket() {
   document.getElementById('rPL').textContent = (isProfit ? '+' : '') + fmt(pl);
   document.getElementById('rPLpct').innerHTML = `<span class="pct-badge ${isProfit ? 'up' : 'down'}">${isProfit ? '▲' : '▼'} ${Math.abs(plPct).toFixed(2)}%</span>`;
 
-  const rPLCard = document.getElementById('rPLCard');
-  const rCurrentCard = document.getElementById('rCurrentCard');
-  rPLCard.className = 'r-card ' + (isProfit ? 'profit' : 'loss');
-  rCurrentCard.className = 'r-card ' + (isProfit ? 'profit' : 'loss');
+  document.getElementById('rPLCard').className = 'r-card ' + (isProfit ? 'profit' : 'loss');
+  document.getElementById('rCurrentCard').className = 'r-card ' + (isProfit ? 'profit' : 'loss');
 
   drawChart(state.p1, state.p2, state.avgPrice, market);
 
-  // P&L bar
   const plDiv = document.getElementById('plVisual');
   plDiv.style.display = 'block';
 
@@ -894,42 +1305,34 @@ function updateMarket() {
 
   document.getElementById('barAvgLbl').textContent = fmtP(state.avgPrice);
   document.getElementById('barMktLbl').textContent = fmtP(market);
-  document.getElementById('barStatusLbl').innerHTML = `Market ₹<span id="barMktLbl">${fmtP(market)}</span>`;
+  document.getElementById('barStatusLbl').innerHTML = `Market ₹<span>${fmtP(market)}</span>`;
 
-  // Suggestion
   showSuggestion(market, state.avgPrice, state.p1, state.p2, state.q1, state.q2, pl, plPct);
 }
 
-// ─── SUGGESTION ──────────────────────────────────────────────────────
 function showSuggestion(market, avg, p1, p2, q1, q2, pl, plPct) {
   const box = document.getElementById('suggestionBox');
   const txt = document.getElementById('suggestionText');
   const isProfit = pl >= 0;
   const gap = Math.abs(market - avg);
   const gapPct = (gap / avg) * 100;
-
-  // Best price to buy more if in loss
   let msg = '';
+
   if (!isProfit) {
     const suggestQty = Math.ceil((q1 + q2) * 0.5);
     const newAvg = (state.totalInvestment + market * suggestQty) / (state.totalShares + suggestQty);
     msg = `📉 You're <span class="sug-highlight">${Math.abs(plPct).toFixed(2)}% below</span> your average (₹${fmtP(avg)}).
-    <br>Buying <span class="sug-highlight">${suggestQty} more shares</span> at current market price 
-    <span class="sug-highlight">₹${fmtP(market)}</span> would bring your new average to 
-    <span class="sug-highlight">₹${fmtP(newAvg)}</span>. 
-    You'd need a <span class="sug-highlight">${(((newAvg - market) / market) * 100).toFixed(2)}% recovery</span> to break even.`;
+    <br>Buying <span class="sug-highlight">${suggestQty} more shares</span> at market ₹${fmtP(market)} → new avg <span class="sug-highlight">₹${fmtP(newAvg)}</span>.
+    Need <span class="sug-highlight">${(((newAvg - market) / market) * 100).toFixed(2)}% recovery</span> to break even.`;
   } else {
-    msg = `📈 You're <span class="sug-highlight">+${plPct.toFixed(2)}% in profit</span>. 
-    Current market ₹${fmtP(market)} is <span class="sug-highlight">₹${fmtP(gap)} above</span> your average.
-    Consider booking partial profits if the move is <span class="sug-highlight">&gt; ${(gapPct).toFixed(1)}%</span> from your entry 
-    or trail a stop-loss near ₹<span class="sug-highlight">${fmtP(avg * 1.02)}</span>.`;
+    msg = `📈 You're <span class="sug-highlight">+${plPct.toFixed(2)}% in profit</span>. Market ₹${fmtP(market)} is <span class="sug-highlight">₹${fmtP(gap)} above</span> your avg.
+    Consider partial profits or trail stop-loss near <span class="sug-highlight">₹${fmtP(avg * 1.02)}</span>.`;
   }
 
   txt.innerHTML = msg;
   box.style.display = 'block';
 }
 
-// ─── DRAW SVG CHART ──────────────────────────────────────────────────
 function drawChart(p1, p2, avg, market) {
   const svg = document.getElementById('mainChart');
   const W = 900, H = 260;
@@ -942,11 +1345,9 @@ function drawChart(p1, p2, avg, market) {
 
   const minP = Math.min(...prices) * 0.985;
   const maxP = Math.max(...prices) * 1.015;
-
   const toY = v => padT + plotH - ((v - minP) / (maxP - minP)) * plotH;
 
-  // Spread bars across x
-  const xs = { p1: padL + plotW * 0.15, p2: padL + plotW * 0.5, avg: padL + plotW * 0.75, market: padL + plotW * 0.92 };
+  const xs = { p1: padL + plotW*0.15, p2: padL + plotW*0.5, avg: padL + plotW*0.75, market: padL + plotW*0.92 };
 
   let html = `<defs>
     <linearGradient id="gBar1" x1="0" y1="0" x2="0" y2="1">
@@ -966,50 +1367,44 @@ function drawChart(p1, p2, avg, market) {
   const base = H - padB;
   const bw = 32;
 
-  // Bars
   const drawBar = (x, price, grad, label, isMarket) => {
     const y = toY(price);
     const barH = base - y;
     if (barH <= 0) return '';
     return `
-      <rect x="${x - bw/2}" y="${y}" width="${bw}" height="${barH}" fill="url(#${grad})" rx="5"/>
-      <text x="${x}" y="${y - 8}" text-anchor="middle" fill="${isMarket ? (market >= avg ? '#10d97a' : '#ff4757') : '#c7d5ff'}" font-family="'Space Mono', monospace" font-size="11" font-weight="700">₹${fmtP(price)}</text>
-      <text x="${x}" y="${base + 18}" text-anchor="middle" fill="#5a7199" font-family="'Space Mono', monospace" font-size="10">${label}</text>
+      <rect x="${x-bw/2}" y="${y}" width="${bw}" height="${barH}" fill="url(#${grad})" rx="5"/>
+      <text x="${x}" y="${y-8}" text-anchor="middle" fill="${isMarket ? (market>=avg?'#10d97a':'#ff4757') : '#c7d5ff'}" font-family="'Space Mono',monospace" font-size="11" font-weight="700">₹${fmtP(price)}</text>
+      <text x="${x}" y="${base+18}" text-anchor="middle" fill="#5a7199" font-family="'Space Mono',monospace" font-size="10">${label}</text>
     `;
   };
 
   html += drawBar(xs.p1, p1, 'gBar1', 'Buy #1', false);
   html += drawBar(xs.p2, p2, 'gBar2', 'Buy #2', false);
 
-  // Avg line
   const yAvg = toY(avg);
-  html += `<line x1="${padL}" y1="${yAvg}" x2="${W - padR}" y2="${yAvg}" stroke="#3b7dff" stroke-width="2" stroke-dasharray="6 4" opacity="0.7"/>`;
-  html += `<text x="${padL + 6}" y="${yAvg - 6}" fill="#3b7dff" font-family="'Space Mono', monospace" font-size="11">Avg ₹${fmtP(avg)}</text>`;
+  html += `<line x1="${padL}" y1="${yAvg}" x2="${W-padR}" y2="${yAvg}" stroke="#3b7dff" stroke-width="2" stroke-dasharray="6 4" opacity="0.7"/>`;
+  html += `<text x="${padL+6}" y="${yAvg-6}" fill="#3b7dff" font-family="'Space Mono',monospace" font-size="11">Avg ₹${fmtP(avg)}</text>`;
 
-  // Market
   if (market) {
     const mCol = market >= avg ? '#10d97a' : '#ff4757';
     html += drawBar(xs.market, market, 'gMkt', 'Market', true);
-
-    // Gap line between avg line and market bar top
     const yMkt = toY(market);
     const gapX = xs.market + bw/2 + 8;
-    html += `<line x1="${gapX}" y1="${Math.min(yAvg, yMkt)}" x2="${gapX}" y2="${Math.max(yAvg, yMkt)}" stroke="${mCol}" stroke-width="2" stroke-dasharray="4 3"/>`;
-    html += `<text x="${gapX + 6}" y="${(yAvg + yMkt)/2 + 4}" fill="${mCol}" font-family="'Space Mono', monospace" font-size="11">₹${fmtP(Math.abs(market - avg))}</text>`;
+    html += `<line x1="${gapX}" y1="${Math.min(yAvg,yMkt)}" x2="${gapX}" y2="${Math.max(yAvg,yMkt)}" stroke="${mCol}" stroke-width="2" stroke-dasharray="4 3"/>`;
+    html += `<text x="${gapX+6}" y="${(yAvg+yMkt)/2+4}" fill="${mCol}" font-family="'Space Mono',monospace" font-size="11">₹${fmtP(Math.abs(market-avg))}</text>`;
   }
 
-  // Y axis ticks
-  for (let i = 0; i <= 4; i++) {
-    const v = minP + (maxP - minP) * (i / 4);
+  for (let i=0; i<=4; i++) {
+    const v = minP + (maxP-minP) * (i/4);
     const y = toY(v);
-    html += `<line x1="${padL - 5}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#1e2d45" stroke-width="1"/>`;
-    html += `<text x="${padL - 8}" y="${y + 4}" text-anchor="end" fill="#3a5270" font-family="'Space Mono', monospace" font-size="10">₹${Math.round(v)}</text>`;
+    html += `<line x1="${padL-5}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#1e2d45" stroke-width="1"/>`;
+    html += `<text x="${padL-8}" y="${y+4}" text-anchor="end" fill="#3a5270" font-family="'Space Mono',monospace" font-size="10">₹${Math.round(v)}</text>`;
   }
 
   svg.innerHTML = html;
 }
 
-// ─── REQUIRED SHARES ─────────────────────────────────────────────────
+// ══════════════════════════ REQUIRED SHARES ══════════════════════════
 function calculateRequired() {
   const Q = parseInt(document.getElementById('rQ').value);
   const P = parseFloat(document.getElementById('rP').value);
@@ -1040,7 +1435,6 @@ function calculateRequired() {
   const el = document.getElementById('reqResults');
   el.style.display = 'grid';
 
-  // Verify
   const verifyBox = document.createElement('div');
   verifyBox.className = 'suggestion-box';
   verifyBox.style.marginTop = '16px';
@@ -1059,6 +1453,332 @@ function calculateRequired() {
   if (existing) existing.remove();
   el.after(verifyBox);
 }
+
+// ══════════════════════════ XIRR ANALYZER ══════════════════════════
+let xirrLots = [];
+let activeSource = 'zerodha';
+
+function setSource(src) {
+  activeSource = src;
+  document.querySelectorAll('.src-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('src' + src.charAt(0).toUpperCase() + src.slice(1)).classList.add('selected');
+
+  const helper = document.getElementById('pasteHelper');
+  const label = document.getElementById('pasteLabel');
+
+  if (src === 'zerodha') {
+    helper.style.display = 'block';
+    helper.innerHTML = `<strong>Zerodha Console:</strong> Console → Holdings → select stock → trade history table → Select All (Ctrl+A) → Copy (Ctrl+C) → Paste below.<br>
+    <span style="color:#3b7dff">Format detected: <code>DD-MM-YYYY &nbsp; BUY &nbsp; QTY &nbsp; PRICE</code> or tab-separated columns.</span>`;
+    label.textContent = 'Paste Zerodha Console trade data (date, type, qty, price)';
+    document.getElementById('bulkData').placeholder = '15-01-2024\tBUY\t50\t2342.50\n03-03-2024\tBUY\t100\t2180.00';
+  } else if (src === 'kite') {
+    helper.style.display = 'block';
+    helper.innerHTML = `<strong>Kite:</strong> Go to Orders → Past Orders → filter BUY → select rows → copy and paste.<br>
+    <span style="color:#3b7dff">Format: <code>DD MMM YYYY &nbsp; STOCK &nbsp; QTY &nbsp; PRICE</code></span>`;
+    label.textContent = 'Paste Kite order history';
+    document.getElementById('bulkData').placeholder = '15 Jan 2024\tINFY\tBUY\t50\t2342.50\n03 Mar 2024\tINFY\tBUY\t100\t2180.00';
+  } else {
+    helper.style.display = 'none';
+    label.textContent = 'Manual entry — one row per buy: DATE  QTY  PRICE';
+    document.getElementById('bulkData').placeholder = '2024-01-15  50  2342.50\n2024-03-03  100  2180.00\n2024-06-12  75  2560.00';
+  }
+}
+
+function parseDate(str) {
+  str = str.trim();
+  // DD-MM-YYYY or DD/MM/YYYY
+  let m = str.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
+  // YYYY-MM-DD
+  m = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  // DD MMM YYYY
+  m = str.match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
+  if (m) {
+    const months = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+    return new Date(+m[3], months[m[2].toLowerCase()], +m[1]);
+  }
+  return null;
+}
+
+function parseLine(line) {
+  const raw = line.trim();
+  if (!raw) return null;
+
+  // Split by tabs first, then fallback to spaces
+  let parts = raw.split('\t').map(p => p.trim()).filter(p => p.length > 0);
+  if (parts.length < 3) parts = raw.split(/\s{2,}|\s+/).filter(p => p.length > 0);
+
+  // Try to extract date, qty, price from parts (ignore BUY/SELL keywords and stock symbols)
+  let date = null, qty = null, price = null;
+  let numParts = [];
+  let dateParts = [];
+
+  parts.forEach(p => {
+    const d = parseDate(p);
+    if (d) { dateParts.push({ val: d, str: p }); return; }
+    const n = parseFloat(p.replace(/,/g, ''));
+    if (!isNaN(n) && n > 0) numParts.push(n);
+  });
+
+  if (dateParts.length === 0) return null;
+  date = dateParts[0].val;
+
+  // Filter out BUY/SELL/stock symbols
+  const isBuySell = p => /^(buy|sell|b|s)$/i.test(p.trim());
+
+  // If we have 2 numbers: first = qty, second = price (price usually > qty unless huge lot)
+  if (numParts.length >= 2) {
+    // Heuristic: price is usually > qty for Indian stocks
+    if (numParts[1] > numParts[0] * 2 || numParts[0] <= 10000) {
+      qty = numParts[0];
+      price = numParts[1];
+    } else {
+      qty = numParts[0];
+      price = numParts[1];
+    }
+  } else if (numParts.length === 1) {
+    return null;
+  }
+
+  if (!date || !qty || !price || qty <= 0 || price <= 0) return null;
+  return { date, dateStr: date.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'}), qty, price, invest: qty * price };
+}
+
+function parseAndAnalyze() {
+  const raw = document.getElementById('bulkData').value.trim();
+  if (!raw) return showError('xirrError', 'Please paste or enter trade data first.');
+
+  const lines = raw.split('\n');
+  xirrLots = [];
+
+  lines.forEach(line => {
+    // Skip header lines
+    if (/date|trade|type|symbol|scrip|order|qty|price|value/i.test(line) && !/\d{2}[-\/]\d{2}[-\/]\d{4}/.test(line)) return;
+    const lot = parseLine(line);
+    if (lot) xirrLots.push(lot);
+  });
+
+  if (xirrLots.length === 0) {
+    return showError('xirrError', 'Could not parse any trades. Check format — expected: DATE  QTY  PRICE (tab or space separated).');
+  }
+
+  // Sort by date ascending
+  xirrLots.sort((a, b) => a.date - b.date);
+
+  renderLotsTable();
+  renderSummary();
+}
+
+function renderLotsTable() {
+  const tbody = document.getElementById('lotsTbody');
+  const totalInv = xirrLots.reduce((s,l) => s + l.invest, 0);
+
+  tbody.innerHTML = xirrLots.map((l, i) => {
+    const pct = ((l.invest / totalInv) * 100).toFixed(1);
+    return `<tr>
+      <td style="color:var(--muted)">${i+1}</td>
+      <td>${l.dateStr}</td>
+      <td>${l.qty.toLocaleString('en-IN')}</td>
+      <td class="price-cell">${fmtPShort(l.price)}</td>
+      <td class="invest-cell">${fmtPShort(l.invest)}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="flex:1;background:var(--bg);border-radius:4px;height:6px;overflow:hidden;border:1px solid var(--border)">
+            <div style="width:${pct}%;height:100%;background:var(--accent);border-radius:4px"></div>
+          </div>
+          <span style="font-size:11px;color:var(--muted);min-width:32px">${pct}%</span>
+        </div>
+      </td>
+      <td><button class="del-btn" onclick="deleteLot(${i})">✕</button></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('xirrLotsSubtitle').textContent = `${xirrLots.length} lot${xirrLots.length !== 1 ? 's' : ''} detected · ${xirrLots.reduce((s,l)=>s+l.qty,0).toLocaleString('en-IN')} shares total`;
+  document.getElementById('xirrLotsCard').style.display = 'block';
+}
+
+function deleteLot(idx) {
+  xirrLots.splice(idx, 1);
+  if (xirrLots.length === 0) {
+    document.getElementById('xirrLotsCard').style.display = 'none';
+    document.getElementById('xirrSummarySection').style.display = 'none';
+    return;
+  }
+  renderLotsTable();
+  renderSummary();
+}
+
+function renderSummary() {
+  if (xirrLots.length === 0) return;
+
+  const totalInv = xirrLots.reduce((s,l) => s + l.invest, 0);
+  const totalQty = xirrLots.reduce((s,l) => s + l.qty, 0);
+  const avg = totalInv / totalQty;
+
+  const worst = [...xirrLots].sort((a,b) => b.price - a.price)[0];
+  const best  = [...xirrLots].sort((a,b) => a.price - b.price)[0];
+  const last3 = [...xirrLots].slice(-3);
+  const avgRecent = last3.reduce((s,l) => s + l.price, 0) / last3.length;
+
+  document.getElementById('xAvg').textContent = fmtPShort(avg);
+  document.getElementById('xTotalInv').textContent = fmtPShort(totalInv);
+  document.getElementById('xTotalQty').textContent = totalQty.toLocaleString('en-IN');
+
+  document.getElementById('xWorstPrice').textContent = fmtPShort(worst.price);
+  document.getElementById('xWorstDate').textContent = worst.dateStr + ' · qty ' + worst.qty;
+  document.getElementById('xBestPrice').textContent  = fmtPShort(best.price);
+  document.getElementById('xBestDate').textContent   = best.dateStr + ' · qty ' + best.qty;
+  document.getElementById('xRecentAvg').textContent  = fmtPShort(avgRecent);
+  document.getElementById('xRecentSub').textContent  = `last ${last3.length} buy${last3.length>1?'s':''}`;
+
+  // CMP based P&L
+  const cmp = parseFloat(document.getElementById('xirrCMP').value);
+  if (cmp > 0) {
+    const currVal = cmp * totalQty;
+    const pl = currVal - totalInv;
+    const plPct = (pl / totalInv) * 100;
+    const isP = pl >= 0;
+    const card = document.getElementById('xPLCard');
+    card.className = 'xc ' + (isP ? 'green-card' : 'red-card');
+    document.getElementById('xPL').textContent = (isP?'+':'') + fmtPShort(pl);
+    document.getElementById('xPL').title = (isP?'▲':'▼') + ' ' + Math.abs(plPct).toFixed(2) + '%';
+
+    // XIRR gauge
+    const actualXIRR = computeXIRR(xirrLots, cmp, new Date());
+    document.getElementById('xirrGaugeContent').style.display = 'block';
+    document.getElementById('xirrGaugeSub').textContent = 'Based on current market price ₹' + fmtP(cmp);
+
+    if (actualXIRR !== null) {
+      const xPct = (actualXIRR * 100).toFixed(2);
+      const col = actualXIRR >= 0 ? 'var(--green)' : 'var(--red)';
+      document.getElementById('xirrActualCard').className = 'xc ' + (actualXIRR >= 0 ? 'green-card' : 'red-card');
+      document.getElementById('xirrActualVal').textContent = xPct + '%';
+      document.getElementById('xirrActualVal').style.color = col;
+      document.getElementById('xirrGaugeMarker').textContent = 'XIRR: ' + xPct + '%';
+      document.getElementById('xirrGaugeFill').style.width = Math.min(Math.max((actualXIRR / 0.5) * 100, 0), 100) + '%';
+
+      // Holding period
+      const earliest = xirrLots[0].date;
+      const days = Math.round((new Date() - earliest) / (1000*60*60*24));
+      const yrs = (days / 365).toFixed(1);
+      document.getElementById('xirrHoldPeriod').textContent = yrs + ' yrs';
+
+      // Absolute return
+      document.getElementById('xirrAbsReturn').textContent = (isP?'+':'') + plPct.toFixed(2) + '%';
+    }
+  } else {
+    document.getElementById('xPL').textContent = '—';
+    document.getElementById('xPLCard').className = 'xc';
+    document.getElementById('xirrGaugeContent').style.display = 'none';
+    document.getElementById('xirrGaugeSub').textContent = 'Enter current market price above for live XIRR';
+  }
+
+  // Exit target
+  const exitDate = document.getElementById('exitDate').value;
+  const rate = parseFloat(document.getElementById('xirrRate').value) / 100;
+
+  if (exitDate && rate > 0) {
+    const exitVal = computeRequiredExitValue(xirrLots, rate, new Date(exitDate));
+    if (exitVal !== null && exitVal > 0) {
+      const exitPrice = exitVal / totalQty;
+      const gain = exitVal - totalInv;
+      const retPct = (gain / totalInv) * 100;
+
+      document.getElementById('ecPrice').textContent = fmtPShort(exitPrice);
+      document.getElementById('ecTotal').textContent = fmtPShort(exitVal);
+      document.getElementById('ecGain').textContent = '+' + fmtPShort(gain);
+      document.getElementById('ecRetPct').textContent = '+' + retPct.toFixed(2) + '%';
+      document.getElementById('ecRate').textContent = (rate * 100).toFixed(0);
+      document.getElementById('ecDate').textContent = new Date(exitDate).toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'});
+      document.getElementById('exitTargetCard').style.display = 'block';
+    }
+  }
+
+  document.getElementById('xirrSummarySection').style.display = 'block';
+}
+
+// Newton-Raphson XIRR
+function computeXIRR(lots, cmp, exitDate) {
+  const totalQty = lots.reduce((s,l) => s+l.qty, 0);
+  const cashflows = lots.map(l => ({ date: l.date, amount: -l.invest }));
+  cashflows.push({ date: exitDate, amount: cmp * totalQty });
+
+  const minDate = cashflows[0].date;
+  const t = cf => (cf.date - minDate) / (365.25 * 24 * 60 * 60 * 1000);
+
+  function npv(rate) {
+    return cashflows.reduce((s, cf) => s + cf.amount / Math.pow(1 + rate, t(cf)), 0);
+  }
+
+  function dnpv(rate) {
+    return cashflows.reduce((s, cf) => {
+      const ti = t(cf);
+      return s - ti * cf.amount / Math.pow(1 + rate, ti + 1);
+    }, 0);
+  }
+
+  let guess = 0.1;
+  for (let i = 0; i < 100; i++) {
+    const n = npv(guess);
+    const dn = dnpv(guess);
+    if (Math.abs(dn) < 1e-12) break;
+    const next = guess - n / dn;
+    if (Math.abs(next - guess) < 1e-8) { guess = next; break; }
+    guess = next;
+    if (guess < -0.999) guess = -0.5;
+  }
+  return isFinite(guess) ? guess : null;
+}
+
+// Binary search for required exit value
+function computeRequiredExitValue(lots, targetRate, exitDate) {
+  const t0 = lots[0].date;
+  const t = d => (d - t0) / (365.25 * 24 * 60 * 60 * 1000);
+
+  function npv(exitVal) {
+    let sum = 0;
+    lots.forEach(l => {
+      sum -= l.invest / Math.pow(1 + targetRate, t(l.date));
+    });
+    sum += exitVal / Math.pow(1 + targetRate, t(exitDate));
+    return sum;
+  }
+
+  let lo = 0, hi = 1e10;
+  for (let i = 0; i < 200; i++) {
+    const mid = (lo + hi) / 2;
+    if (npv(mid) > 0) hi = mid;
+    else lo = mid;
+  }
+  return (lo + hi) / 2;
+}
+
+function clearXirr() {
+  xirrLots = [];
+  document.getElementById('bulkData').value = '';
+  document.getElementById('xirrCMP').value = '';
+  document.getElementById('xirrSymbol').value = '';
+  document.getElementById('xirrLotsCard').style.display = 'none';
+  document.getElementById('xirrSummarySection').style.display = 'none';
+}
+
+function loadSampleData() {
+  document.getElementById('bulkData').value =
+`15-01-2024\tBUY\t50\t2342.50
+03-03-2024\tBUY\t100\t2180.00
+12-06-2024\tBUY\t75\t2560.00
+20-09-2024\tBUY\t50\t2410.00
+05-01-2025\tBUY\t80\t2290.00`;
+  setSource('zerodha');
+  parseAndAnalyze();
+}
+
+// Set default exit date
+const d = new Date();
+d.setFullYear(d.getFullYear() + 1);
+document.getElementById('exitDate').value = d.toISOString().split('T')[0];
 </script>
 </body>
 </html>
